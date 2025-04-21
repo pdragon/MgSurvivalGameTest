@@ -20,8 +20,8 @@ namespace Shared
             int j = 0;
             for (int x = 0; x < Width; x++)
                 for (int y = 0; y < Height; y++)
-                    //tiles[x, y] = 0; // 0 — базовый тип тайла
-                    tiles[x, y] = j++;
+                    tiles[x, y] = 0; // 0 — базовый тип тайла
+                    //tiles[x, y] = j++;
         }
 
         public Rectangle GetTileBounds(int x, int y)
