@@ -15,6 +15,10 @@ namespace Desktop
 {
     public class DesktopGame : Game
     {
+        private bool IsMiddleButtonPressed = false;
+        private System.TimeSpan _lastToggleTime;
+        private const double ToggleCooldown = 0.3; // Задержка в секундах
+
         private readonly GameCore core = new GameCore();
         private GraphicsDeviceManager gfx;
         private SpriteBatch sb;
@@ -29,6 +33,8 @@ namespace Desktop
         private CharacterInventory CharacterInventory;
         //public IconManager Icons { get; private set; }
         public const string MAIN_ATHLAS_NAME = "main_atlas";
+
+        private bool IsMiddleButtonPreviouslyPressed = false;
 
         public DesktopGame()
         {
@@ -107,21 +113,53 @@ namespace Desktop
             float dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
             var mouse = Mouse.GetState();
             Point? click = null;
-            // Используем клиентские координаты окна
-            if (mouse.X >= 0 && mouse.X < GraphicsDevice.Viewport.Width &&
-                    mouse.Y >= 0 && mouse.Y < GraphicsDevice.Viewport.Height)
+
+            // Обработка открытия с задержкой
+            if (mouse.MiddleButton == ButtonState.Pressed && !IsMiddleButtonPressed)
             {
-                if (mouse.RightButton == ButtonState.Pressed && IsActive)
+                if ((gameTime.TotalGameTime - _lastToggleTime).TotalSeconds >= ToggleCooldown)
+                {
+                    InventoryPanel.IsVisible = !InventoryPanel.IsVisible;
+                    _lastToggleTime = gameTime.TotalGameTime;
+                }
+                IsMiddleButtonPressed = true;
+            }
+            else if (mouse.MiddleButton == ButtonState.Released)
+            {
+                IsMiddleButtonPressed = false;
+            }
+
+            // Закрытие при клике вне панели или по кнопке закрытия
+            if (InventoryPanel.IsVisible && mouse.LeftButton == ButtonState.Pressed)
+            {
+                if (InventoryPanel.CheckCloseButtonClick(mouse.Position))
+                {
+                    InventoryPanel.IsVisible = false;
+                }
+                else if (!InventoryPanel.Bounds.Contains(mouse.Position))
+                {
+                    InventoryPanel.IsVisible = false;
+                }
+            }
+
+            // Проверяем:
+            // 1. Нажата левая кнопка мыши
+            // 2. Окно активно (IsActive)
+            // 3. Курсор находится в пределах видимой области окна (клиентские координаты)
+            if (mouse.RightButton == ButtonState.Pressed && IsActive)
+            {
+                // Используем клиентские координаты окна
+                if (mouse.X >= 0 && mouse.X < GraphicsDevice.Viewport.Width &&
+                    mouse.Y >= 0 && mouse.Y < GraphicsDevice.Viewport.Height)
                 {
                     click = new Point(mouse.X, mouse.Y);
                 }
-                if (mouse.MiddleButton == ButtonState.Pressed && IsActive)
-                {
-                    InventoryPanel.IsVisible = !InventoryPanel.IsVisible;
-                }
             }
+
+
             core.Update(dt, click);
             base.Update(gameTime);
+            InventoryPanel.Update(gameTime);
         }
 
         protected override void Draw(GameTime gameTime)
@@ -161,6 +199,4 @@ namespace Desktop
             base.Draw(gameTime);
         }
     }
-
-
 }
