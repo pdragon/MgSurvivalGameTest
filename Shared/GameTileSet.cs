@@ -7,10 +7,10 @@ namespace Desktop
 {
     public class GameTileSet
     {
-        public Rectangle[] TileRegions { get; private set; }
+        public Rectangle[]? TileRegions { get; private set; }
         private int tileWidth = 20;
         private int tileHeight = 20;
-        public TileMap TileMap;
+        public TileMap? TileMap;
         
         public void LoadTileset(Vector2i textureSize)
         {

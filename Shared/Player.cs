@@ -16,6 +16,11 @@ namespace Shared
             this.speed = speed;
         }
 
+        public void PlayAnimation(string animationName)
+        {
+            // Логика анимации
+        }
+
         public void SetDestination(Point click)
         {
             destination = new Vector2(click.X, click.Y);

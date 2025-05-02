@@ -1,7 +1,5 @@
 ﻿// Shared/UI/InventoryPanel.cs
 using Desktop;
-using Desktop.Icons;
-using Desktop.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -10,15 +8,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Shared.UI
+namespace Desktop.UI.Inventory
 {
     public class InventoryPanel
     {
         public bool IsVisible;
-        private readonly List<InventorySlot> slots = new List<InventorySlot>();
+        //protected readonly List<InventorySlot> Slots = new List<InventorySlot>();
+        protected List<InventorySlot> Slots = new List<InventorySlot>();
         private Texture2D PanelTexture;
-        private Texture2D slotTexture;
-        private SpriteFont font;
+        protected Texture2D SlotTexture;
+        protected SpriteFont Font;
 
         public Rectangle Bounds;
         private Rectangle CloseButtonRect;
@@ -34,11 +33,18 @@ namespace Shared.UI
             //Icons = new IconManager();
         }
 
-        public void Initialize(CharacterInventory inventory, Texture2D panelTex, Texture2D slotTex, SpriteFont font)
+        public void Initialize(
+       CharacterInventory inventory,
+       Texture2D panelTex,
+       Texture2D slotTex,
+       SpriteFont font,
+       GraphicsDevice graphicsDevice // Добавляем GraphicsDevice
+   )
+        //public void Initialize(CharacterInventory inventory, Texture2D panelTex, Texture2D slotTex, SpriteFont font)
         {
             PanelTexture = panelTex;
-            slotTexture = slotTex;
-            this.font = font;
+            SlotTexture = slotTex;
+            this.Font = font;
 
             // Create slots grid (example: 5x8)
             int slotSize = 64;
@@ -50,7 +56,7 @@ namespace Shared.UI
             {
                 for (int x = 0; x < 8; x++)
                 {
-                    slots.Add(new InventorySlot
+                    Slots.Add(new InventorySlot
                     {
                         Bounds = new Rectangle(
                             startX + x * (slotSize + padding),
@@ -64,10 +70,10 @@ namespace Shared.UI
             UpdateSlots(inventory);
             // После создания слотов вычисляем общие границы
             Bounds = new Rectangle(
-                slots.Min(s => s.Bounds.Left),
-                slots.Min(s => s.Bounds.Top),
-                slots.Max(s => s.Bounds.Right) - slots.Min(s => s.Bounds.Left),
-                slots.Max(s => s.Bounds.Bottom) - slots.Min(s => s.Bounds.Top)
+                Slots.Min(s => s.Bounds.Left),
+                Slots.Min(s => s.Bounds.Top),
+                Slots.Max(s => s.Bounds.Right) - Slots.Min(s => s.Bounds.Left),
+                Slots.Max(s => s.Bounds.Bottom) - Slots.Min(s => s.Bounds.Top)
             );
             // Создаём кнопку закрытия в правом верхнем углу
             CloseButtonRect = new Rectangle(Bounds.Right + 40, Bounds.Top + 10, 30, 30);
@@ -77,12 +83,12 @@ namespace Shared.UI
         {
             if (inventory.Items.Count > 0)
             {
-                for (int i = 0; i < slots.Count; i++)
+                for (int i = 0; i < Slots.Count; i++)
                 {
-                    slots[i].Item = i < inventory.Items.Count ? inventory.Items[i] : null;
-                    if (slots[i].Item != null)
+                    Slots[i].Item = i < inventory.Items.Count ? inventory.Items[i] : null;
+                    if (Slots[i].Item != null)
                     {
-                        slots[i].IconTexture = DesktopGame.TextureManager.GetTexture(slots[i].Item.TextureId);
+                        Slots[i].IconTexture = DesktopGame.TextureManager.GetTexture(Slots[i].Item.TextureId);
                     }
                 }
             }
@@ -105,7 +111,7 @@ namespace Shared.UI
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        public virtual void Draw(SpriteBatch spriteBatch)
         {
             if (!IsVisible) return;
 
@@ -127,9 +133,9 @@ namespace Shared.UI
             spriteBatch.Draw(PanelTexture, new Rectangle(50, 50, 800, 500), Color.White * 0.9f);
 
             // Draw all slots
-            foreach (var slot in slots)
+            foreach (var slot in Slots)
             {
-                slot.Draw(spriteBatch, font, slotTexture);
+                slot.Draw(spriteBatch, Font, SlotTexture);
             }
             CloseButtonTexture = DesktopGame.TextureManager.GetTexture("error_error");
             spriteBatch.Draw(CloseButtonTexture, CloseButtonRect, Color.White);

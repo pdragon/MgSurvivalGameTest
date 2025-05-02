@@ -22,13 +22,22 @@ namespace Desktop
             _content = content;
         }
 
-        // Загрузка отдельной текстуры
+        /// <summary>
+        /// Загрузка отдельной текстуры
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="assetPath"></param>
         public void LoadTexture(string id, string assetPath)
         {
             Textures[id] = _content.Load<Texture2D>(assetPath);
         }
 
-        // Загрузка атласа с определением регионов
+        /// <summary>
+        /// Загрузка атласа с определением регионов
+        /// </summary>
+        /// <param name="atlasId"></param>
+        /// <param name="assetPath"></param>
+        /// <param name="regions"></param>
         public void LoadAtlas(string atlasId, string assetPath, Dictionary<string, Rectangle> regions)
         {
             var atlasTexture = _content.Load<Texture2D>(assetPath);
@@ -39,7 +48,12 @@ namespace Desktop
             }
         }
 
-        // Извлечение региона из атласа и создание отдельной текстуры
+        /// <summary>
+        /// Извлечение региона из атласа и создание отдельной текстуры
+        /// </summary>
+        /// <param name="atlas"></param>
+        /// <param name="region"></param>
+        /// <returns></returns> 
         private Texture2D ExtractRegion(Texture2D atlas, Rectangle region)
         {
             Color[] data = new Color[region.Width * region.Height];
@@ -50,7 +64,11 @@ namespace Desktop
             return newTexture;
         }
 
-        // Получение текстуры по ID
+        /// <summary>
+        ///  Получение текстуры по ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public Texture2D GetTexture(string id)
         {
             if (!Textures.ContainsKey(id))
@@ -58,6 +76,15 @@ namespace Desktop
                 return Textures["error_error"];
             }
             return Textures.TryGetValue(id, out var texture) ? texture : null;
+        }
+
+        /// <summary>
+        /// Регистрирует новый регион в атласе под указанным ID.
+        /// </summary>
+        public void RegisterRegion(string id, Rectangle region, Texture2D atlas)
+        {
+            var tex = ExtractRegion(atlas, region);
+            Textures[id] = tex;
         }
     }
 }

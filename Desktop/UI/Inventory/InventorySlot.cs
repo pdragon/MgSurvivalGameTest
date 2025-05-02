@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Shared.Inventory;
 
-namespace Desktop.UI
+namespace Desktop.UI.Inventory
 {
     public class InventorySlot
     {

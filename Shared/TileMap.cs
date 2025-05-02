@@ -17,7 +17,7 @@ namespace Shared
 
         private void Generate()
         {
-            int j = 0;
+            //int j = 0;
             for (int x = 0; x < Width; x++)
                 for (int y = 0; y < Height; y++)
                     tiles[x, y] = 0; // 0 — базовый тип тайла

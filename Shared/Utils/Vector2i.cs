@@ -18,5 +18,10 @@ namespace Shared.Utils
             X = x;
             Y = y;
         }
+
+        //public ToVector()
+        //{
+
+        //}
     }
 }
