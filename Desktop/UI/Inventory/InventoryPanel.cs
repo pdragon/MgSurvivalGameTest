@@ -3,7 +3,7 @@ using Desktop;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using Shared.Inventory;
+using Desktop.Inventory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,6 @@ namespace Desktop.UI.Inventory
     public class InventoryPanel
     {
         public bool IsVisible;
-        //protected readonly List<InventorySlot> Slots = new List<InventorySlot>();
         protected List<InventorySlot> Slots = new List<InventorySlot>();
         private Texture2D PanelTexture;
         protected Texture2D SlotTexture;

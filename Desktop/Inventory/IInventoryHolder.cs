@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Text;
 
-namespace Shared.Inventory
+namespace Desktop.Inventory
 {
     // Интерфейс для объектов, имеющих инвентарь
     public interface IInventoryHolder

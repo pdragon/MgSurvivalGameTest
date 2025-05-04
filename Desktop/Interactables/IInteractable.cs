@@ -1,4 +1,4 @@
-﻿using Shared.Inventory;
+﻿using Desktop.Inventory;
 using Shared;
 using Microsoft.Xna.Framework;
 

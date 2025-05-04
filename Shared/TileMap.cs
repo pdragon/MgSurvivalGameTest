@@ -5,6 +5,11 @@ namespace Shared
 {
     public class TileMap
     {
+        public class Tile
+        {
+            public byte[][] Terrain;
+            public byte[] TileData;
+        }
         public readonly int Width, Height, TileSize;
         private readonly int[,] tiles;
 
@@ -20,7 +25,7 @@ namespace Shared
             //int j = 0;
             for (int x = 0; x < Width; x++)
                 for (int y = 0; y < Height; y++)
-                    tiles[x, y] = 0; // 0 — базовый тип тайла
+                    tiles[x, y] = 66; // 0 — базовый тип плитки
                     //tiles[x, y] = j++;
         }
 

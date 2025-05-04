@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Shared.Inventory
+namespace Desktop.Inventory
 {
     /// <summary>
     /// Специализированный класс инвентаря для персонажа.

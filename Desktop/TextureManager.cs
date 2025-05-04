@@ -1,25 +1,22 @@
-﻿using System;
+﻿using Desktop.Classes;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection.Metadata;
 
 namespace Desktop
 {
-    using Microsoft.Xna.Framework;
-    using Microsoft.Xna.Framework.Content;
-    using Microsoft.Xna.Framework.Graphics;
-    using System.Collections.Generic;
 
     public class TextureManager
     {
-        private readonly ContentManager _content;
+        private readonly ContentManager Content;
         private readonly Dictionary<string, Texture2D> Textures = new Dictionary<string, Texture2D>();
         //private readonly Dictionary<string, AtlasDefinition> _atlases = new Dictionary<string, AtlasDefinition>();
 
         public TextureManager(ContentManager content)
         {
-            _content = content;
+            Content = content;
         }
 
         /// <summary>
@@ -29,7 +26,7 @@ namespace Desktop
         /// <param name="assetPath"></param>
         public void LoadTexture(string id, string assetPath)
         {
-            Textures[id] = _content.Load<Texture2D>(assetPath);
+            Textures[id] = Content.Load<Texture2D>(assetPath);
         }
 
         /// <summary>
@@ -40,11 +37,31 @@ namespace Desktop
         /// <param name="regions"></param>
         public void LoadAtlas(string atlasId, string assetPath, Dictionary<string, Rectangle> regions)
         {
-            var atlasTexture = _content.Load<Texture2D>(assetPath);
+            var atlasTexture = Content.Load<Texture2D>(assetPath);
             foreach (var region in regions)
             {
                 string textureId = $"{atlasId}_{region.Key}";
                 Textures[textureId] = ExtractRegion(atlasTexture, region.Value);
+            }
+        }
+
+        public void LoadAtlas()
+        {
+            foreach (var tile in AssetsDataLoader.Config!.Assets.Terrain.Tiles)
+            {
+                var atlasKey = tile.Value.Atlas;
+                if (atlasKey == null)
+                {
+                    //TODO: Читать из файла одиночного а не спрайт щет
+                    continue;
+                }
+                if (AssetsDataLoader.Config.Assets.Atlases[atlasKey].Texture == null)
+                {
+                    AssetsDataLoader.Config.Assets.Atlases[atlasKey].Texture = Content.Load<Texture2D>(AssetsDataLoader.Config.Assets.Atlases[atlasKey].File);
+                }
+                //TextureManager.LoadAtlas(atlasKey, tile.Value.TileId, tile.Value.TexturePosition);
+                string textureId = $"{atlasKey}_{tile.Value.TileId}";
+                Textures[textureId] = ExtractRegion(AssetsDataLoader.Config.Assets.Atlases[atlasKey].Texture, tile.Value.TexturePosition);
             }
         }
 

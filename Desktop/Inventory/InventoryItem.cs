@@ -1,4 +1,6 @@
-﻿namespace Shared.Inventory
+﻿using Desktop.Classes;
+
+namespace Desktop.Inventory
 {
     /// <summary>
     /// Класс, описывающий предмет в инвентаре.
@@ -19,12 +21,12 @@
         public string TextureId { get; private set; }
         public ActionsType ActionType { get; set; } = ActionsType.None; // Например, "mine", "plant", "build"
 
-        public InventoryItem(string id, string name, string textureId = "error_error", int quantity = 1)
+        public InventoryItem(Item item, int quantity)
         {
-            ID = id;
-            Name = name;
+            ID = item.Id.ToString();
+            Name = item.Name;
             Quantity = quantity;
-            TextureId = textureId;
+            TextureId = item.IconId;
         }
     }
 }

@@ -5,7 +5,6 @@ using Desktop.Interactables;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 
-
 namespace Desktop
 {
     public class GameCore
@@ -44,6 +43,15 @@ namespace Desktop
         private void RemoveTree(Tree tree)
         {
             Interactables.Remove(tree);
+        }
+
+        private byte[][] LoadTerrain()
+        {
+            byte[][] map = null;
+            map[0][0] = 0;
+            map[0][1] = 1; 
+            map[0][2] = 66;
+            return map;
         }
     }
 }

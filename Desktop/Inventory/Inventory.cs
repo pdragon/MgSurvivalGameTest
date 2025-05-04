@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Shared.Inventory
+namespace Desktop.Inventory
 {
     /// <summary>
     /// Общий класс-хранилище предметов.

@@ -1,6 +1,6 @@
 ﻿using Desktop.Interactables;
 using Microsoft.Xna.Framework;
-using Shared.Inventory;
+using Desktop.Inventory;
 using System;
 using static System.Formats.Asn1.AsnWriter;
 

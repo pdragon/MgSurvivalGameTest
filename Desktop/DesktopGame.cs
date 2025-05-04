@@ -1,6 +1,6 @@
 ﻿using Shared;
 using Shared.Utils;
-using Shared.Inventory;
+using Desktop.Inventory;
 using Desktop.Extensions;
 using Desktop.UI.Inventory;
 using Desktop.Interactables;
@@ -12,6 +12,9 @@ using System.Linq;
 using static System.Formats.Asn1.AsnWriter;
 using System.Buffers;
 using System;
+using Desktop.Core;
+using System.IO;
+using Desktop.Classes;
 
 namespace Desktop
 {
@@ -41,13 +44,14 @@ namespace Desktop
         private CharacterInventory CharacterInventory;
         //public IconManager Icons { get; private set; }
         public const string MAIN_ATHLAS_NAME = "main_atlas";
+        public static ConfigFile Config;
 
         private bool IsMiddleButtonPreviouslyPressed = false;
         private HotbarPanel HotbarPanel;
 
         private Texture2D defaultCursorTexture;
         private Texture2D actionCursorTexture;
-
+        private ConfigFile.TerrainClass Terrain;
 
         public DesktopGame()
         {
@@ -69,30 +73,40 @@ namespace Desktop
         private void LoadInventory()
         {
             //Icons.LoadIcons(Content);
-            UIFont = Content.Load<SpriteFont>("UI/Font");
-            SlotTexture = Content.Load<Texture2D>("UI/slot");
-            PanelTexture = Content.Load<Texture2D>("UI/panel");
+            UIFont = Content.Load<SpriteFont>(Config.Assets.Ui.Font);
+            SlotTexture = Content.Load<Texture2D>(Config.Assets.Ui.Slot);
+            PanelTexture = Content.Load<Texture2D>(Config.Assets.Ui.Panel);
 
             CharacterInventory = new CharacterInventory(40);
-            CharacterInventory.AddItem(new InventoryItem("sword", "Steel Sword", MAIN_ATHLAS_NAME + "_sword", 1));
-            CharacterInventory.AddItem(new InventoryItem("potion", "Health Potion", "potion_potion", 5));
-            CharacterInventory.AddItem(new InventoryItem("arrow", "Arrows", MAIN_ATHLAS_NAME + "_arrow", 50));
+            //CharacterInventory.AddItem(new InventoryItem("sword", "Steel Sword", MAIN_ATHLAS_NAME + "_sword", 1));
+            //CharacterInventory.AddItem(new InventoryItem("potion", "Health Potion", "potion_potion", 5));
+            //CharacterInventory.AddItem(new InventoryItem("arrow", "Arrows", MAIN_ATHLAS_NAME + "_arrow", 50));
+            CharacterInventory.AddItem(new InventoryItem(Config.Assets.Items["sword"], 1));
+            CharacterInventory.AddItem(new InventoryItem(Config.Assets.Items["potion"], 5));
+            CharacterInventory.AddItem(new InventoryItem(Config.Assets.Items["arrow"], 50));
             InventoryPanel.Initialize(CharacterInventory, PanelTexture, SlotTexture, UIFont, GraphicsDevice);
+
+            //foreach (Config.Assets.Atlases)
+            //{
+
+            //}
 
             // Создаем панель с передачей GraphicsDevice
             HotbarPanel = new HotbarPanel(GraphicsDevice);
             HotbarPanel.Initialize(
                 CharacterInventory,
-                Content.Load<Texture2D>("UI/slot"),
-                Content.Load<Texture2D>("UI/selection_frame"),
-                Content.Load<SpriteFont>("UI/Font")
+                SlotTexture,
+                Content.Load<Texture2D>(Config.Assets.Ui.SelectionFrame),
+                UIFont
             );
-
-            
         }
 
         protected override void LoadContent()
         {
+            var loader = new AssetsDataLoader();
+            Config = loader.GetFromJson();
+            //loader.LoadAssets(Content);
+            //AssetsDataLoader.Config
             sb = new SpriteBatch(GraphicsDevice);
             TileSet = Content.Load<Texture2D>("terrain/output_tileset");
             TileManager.LoadTileset(new Vector2i(TileSet.Width, TileSet.Height));
@@ -102,17 +116,7 @@ namespace Desktop
 
             // Загрузка отдельных текстур
             TextureManager.LoadTexture("player", "player");
-            TextureManager.LoadTexture("ui_slot", "UI/slot");
-
-            // Загрузка атласа с регионами
-            var tileRegions = new Dictionary<string, Rectangle>
-            {
-                { "grass",  new Rectangle(0, 0, 32, 32)    },
-                { "water",  new Rectangle(32, 0, 32, 32)   },
-                { "sword",  new Rectangle(64, 0, 32, 32)   },
-                //{ "potion", new Rectangle(64, 0, 20, 20)   },
-                { "arrow",  new Rectangle(100, 0, 120, 20) }
-            };
+            TextureManager.LoadTexture("ui_slot", Config!.Assets.Ui.Slot);
 
             var potionRegions = new Dictionary<string, Rectangle>
             {
@@ -123,8 +127,9 @@ namespace Desktop
             {
                 { "error",  new Rectangle(0, 0, 16, 16)},
             };
+            TextureManager.LoadAtlas();
 
-            TextureManager.LoadAtlas($"{MAIN_ATHLAS_NAME}", "terrain/output_tileset", tileRegions);
+            //TextureManager.LoadAtlas($"{MAIN_ATHLAS_NAME}", "terrain/output_tileset", tileRegions);
             TextureManager.LoadAtlas("potion", "UI/icons/potion", potionRegions);
             TextureManager.LoadAtlas("error", "UI/icons/error", errorRegion);
             LoadInventory();
@@ -171,27 +176,22 @@ namespace Desktop
         private void DrawMap()
         {
             // рендерим тайлы
-            for (int x = 0; x < TileManager.TileMap.Width; x++)
+            for (int x = 0; x < TileManager.TileMap!.Width; x++)
                 for (int y = 0; y < TileManager.TileMap.Height; y++)
                 {
-                    //var rect = TileManager.TileMap.GetTileBounds(x, y);
-                    //// Получаем тип плитки (например, 0, 1, 2...)
-                    //int tileType = 66;
-                    //// Получаем регион из атласа
-                    //Rectangle sourceRect = TileManager.TileRegions[tileType].ToMonoGame();
                     // Позиция на экране
                     Rectangle destRect = TileManager.TileMap.GetTileBounds(x, y).ToMonoGame();
-                    //// Отрисовка
-                    //sb.Draw(TileSet, destRect, sourceRect, Color.White);
-
+                    string textureId = "-1";
                     int tileType = TileManager.TileMap.GetTileType(x, y);
-                    string textureId = tileType switch
+                    if (Config.Assets.Terrain.Tiles.ContainsKey(tileType.ToString()))
                     {
-                        0 => "main_atlas_grass",
-                        1 => "main_atlas_water",
-                        66 => "main_atlas_grass",
-                        _ => "main_atlas_error"
-                    };
+                        textureId = Config.Assets.Terrain.Tiles[tileType.ToString()].TileId;
+                        string atlasId = Config.Assets.Terrain.Tiles[tileType.ToString()].Atlas;
+                        if(atlasId != null)
+                        {
+                            textureId = $"{atlasId}_{textureId}";
+                        }
+                    }
 
                     Texture2D texture = TextureManager.GetTexture(textureId);
                     sb.Draw(texture, destRect, Color.White);

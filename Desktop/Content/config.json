@@ -1,0 +1,66 @@
+{
+  "assets": {
+    "ui": {
+      "path_SpriteFont": "UI/Font",
+      "path_slot": "UI/slot",
+      "path_SelectionFrame": "UI/selection_frame",
+      "path_Panel": "UI/panel"
+    },
+    "items": {
+      "sword": {
+        "id": 1,
+        "name": "sword",
+        "desc": "Steel Sword",
+        "icon_id": "main_atlas_sword"
+      },
+      "potion": {
+        "id": 2,
+        "name": "potion",
+        "desc": "Health Potion",
+        "icon_id": "potion_potion"
+      },
+      "arrow": {
+        "id": 3,
+        "name": "arrow",
+        "desc": "",
+        "icon_id": "main_atlas_arrow"
+      },
+      "": {
+        "id": 4,
+        "name": "",
+        "desc": "",
+        "icon_id": ""
+      }
+    },
+    "terrain": {
+      "tiles": {
+        "0": {
+          "tile_id": "grass",
+          "atlas": "main_atlas",
+          "texture_position": [ 40, 20, 20, 20 ]
+        },
+        "1": {
+          "tile_id": "water",
+          "atlas": "main_atlas",
+          "texture_position": [ 80, 20, 20, 20 ]
+        },
+        "66": {
+          "tile_id": "grass",
+          "atlas": "main_atlas",
+          "texture_position": [ 20, 20, 20, 20 ]
+        },
+        "-1": {
+          "tile_id": "error",
+          "atlas": "main_atlas",
+          "texture_position": [ 0, 0, 16, 16 ]
+        }
+      }
+    },
+    "atlases": {
+      "main_atlas": {
+        "file": "terrain/output_tileset",
+        "id": "main_atlas"
+      }
+    }
+  }
+}

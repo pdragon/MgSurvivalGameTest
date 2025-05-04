@@ -1,7 +1,7 @@
 // Shared/UI/InventorySlot.cs
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Shared.Inventory;
+using Desktop.Inventory;
 
 namespace Desktop.UI.Inventory
 {

@@ -1,5 +1,5 @@
 ﻿using System.Drawing;
-using Shared.Inventory;
+using Desktop.Inventory;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
