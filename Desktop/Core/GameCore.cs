@@ -17,10 +17,11 @@ namespace Desktop
         {
             // Инициализация игрока и карты
             Player = new Player(5, 5, 200f);
-            Map = new TileMap(100, 100, 32);
+            Map = new TileMap(100, 100, 20);
+            
 
             // Добавление тестового объекта
-            AddTree(new Rectangle(200, 200, 32, 32));
+            AddTree(new Rectangle(200, 200, 20, 20));
         }
 
         public void Update(float deltaTime, Point? click)
@@ -45,13 +46,55 @@ namespace Desktop
             Interactables.Remove(tree);
         }
 
-        private byte[][] LoadTerrain()
+        /// <summary>
+        /// Матрица проходимости: true — если клетка не занята препятствием.
+        /// </summary>
+        public bool[,] WalkableMap
         {
-            byte[][] map = null;
-            map[0][0] = 0;
-            map[0][1] = 1; 
-            map[0][2] = 66;
-            return map;
+            get
+            {
+                int w = Map.Width, h = Map.Height;
+                var result = new bool[w, h];
+                for (int x = 0; x < w; x++)
+                    for (int y = 0; y < h; y++)
+                    {
+                        // Здесь можно проверять свои объекты: если в ячейке есть препятствие — false
+                        // Пока просто считаем все плитки свободными:
+                        result[x, y] = true;
+                    }
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Строит булеву карту проходимости: false там,
+        /// где любой IInteractable перекрывает клетку.
+        /// </summary>
+        public bool[,] BuildWalkableMap()
+        {
+            int w = Map.Width, h = Map.Height, ts = Map.TileSize;
+            var walkable = new bool[w, h];
+
+            // Изначально всё проходимо
+            for (int x = 0; x < w; x++)
+                for (int y = 0; y < h; y++)
+                    walkable[x, y] = true;
+
+            // Для каждого объекта, берём его Bounds и «закрашиваем» соответствующие клетки
+            foreach (var obj in Interactables)
+            {
+                var rect = obj.Bounds; // Microsoft.Xna.Framework.Rectangle
+                int minX = rect.X / ts, minY = rect.Y / ts;
+                int maxX = (rect.Right - 1) / ts;
+                int maxY = (rect.Bottom - 1) / ts;
+
+                for (int gx = minX; gx <= maxX; gx++)
+                    for (int gy = minY; gy <= maxY; gy++)
+                        if (gx >= 0 && gx < w && gy >= 0 && gy < h)
+                            walkable[gx, gy] = false;
+            }
+
+            return walkable;
         }
     }
 }

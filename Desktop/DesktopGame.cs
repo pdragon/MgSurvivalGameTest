@@ -15,6 +15,7 @@ using System;
 using Desktop.Core;
 using System.IO;
 using Desktop.Classes;
+using Shared.Pathfinding;
 
 namespace Desktop
 {
@@ -57,8 +58,8 @@ namespace Desktop
         {
             gfx = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
-            IsMouseVisible = true;
-            //IsMouseVisible = false;                   // скрываем системный курсор
+            //IsMouseVisible = true;
+            IsMouseVisible = false;                   // скрываем системный курсор
         }
 
         protected override void Initialize()
@@ -85,11 +86,6 @@ namespace Desktop
             CharacterInventory.AddItem(new InventoryItem(Config.Assets.Items["potion"], 5));
             CharacterInventory.AddItem(new InventoryItem(Config.Assets.Items["arrow"], 50));
             InventoryPanel.Initialize(CharacterInventory, PanelTexture, SlotTexture, UIFont, GraphicsDevice);
-
-            //foreach (Config.Assets.Atlases)
-            //{
-
-            //}
 
             // Создаем панель с передачей GraphicsDevice
             HotbarPanel = new HotbarPanel(GraphicsDevice);
@@ -303,11 +299,34 @@ namespace Desktop
                 HotbarPanel.SelectSlot(HotbarPanel.SelectedSlotIndex + 1);
             }
 
+            
             // Обработка ПКМ с учётом выбранного предмета
             if (mouse.RightButton == ButtonState.Pressed && IsActive)
             {
                 var selectedItem = HotbarPanel.GetSelectedItem();
                 var mouseWorldPos = GetMouseWorldPosition(); // Метод для преобразования экранных координат в игровые
+
+                // PAth
+                // 1) Получаем клик в мировых координатах и конвертим в сетку:
+                var mouseWorld = GetMouseWorldPosition(); // Vector2 из MonoGame
+                var clickCell = new GridPoint(
+                    (int)(mouseWorld.X / Core.Map.TileSize),
+                    (int)(mouseWorld.Y / Core.Map.TileSize));
+
+                // 2) Стартовый и целевой узлы:
+                var start = new GridPoint(
+                    (int)(Core.Player.Position.X / Core.Map.TileSize),
+                    (int)(Core.Player.Position.Y / Core.Map.TileSize));
+                var goal = clickCell;
+
+                // 3) Строим карту проходимости (bool[,]) и ищем путь:
+                bool[,] walkable = Core.BuildWalkableMap(); // ваш метод, учитывающий препятствия
+                var path = Shared.Pathfinding.AStar.FindPath(walkable, start, goal);
+
+                // 4) Передаём маршрут игроку:
+                Core.Player.SetPath(path);
+                // ----------Path
+
 
                 if (selectedItem != null)
                 {
@@ -335,6 +354,7 @@ namespace Desktop
             PrevMouse = currentMouse;
             base.Update(gameTime);
         }
+
         private Vector2 GetMouseWorldPosition()
         {
             var ms = Mouse.GetState();

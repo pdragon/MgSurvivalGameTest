@@ -35,12 +35,11 @@
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="AI\" />
+  </ItemGroup>
 	<Target Name="CopyConfig" BeforeTargets="Build">
-		<Copy
-		  SourceFiles="@(ConfigFiles)"
-		  DestinationFolder="$(OutputPath)\Content\"
-		  SkipUnchangedFiles="true"
-  />
+		<Copy SourceFiles="@(ConfigFiles)" DestinationFolder="$(OutputPath)\Content\" SkipUnchangedFiles="true" />
 	</Target>
   <Target Name="RestoreDotnetTools" BeforeTargets="Restore">
     <Message Text="Restoring dotnet tools" Importance="High" />
