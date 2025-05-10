@@ -13,6 +13,56 @@ namespace Shared.Pathfinding
             new GridPoint(-1, 1), new GridPoint(-1, -1)
         };
 
+        public static List<GridPoint> SmoothPath(List<GridPoint> path, bool[,] walkable)
+        {
+            if (path.Count < 3) return path;
+
+            var smoothed = new List<GridPoint> { path[0] };
+            int lastValid = 0;
+
+            for (int i = 2; i < path.Count; i++)
+            {
+                if (!IsWalkableBetween(smoothed.Last(), path[i], walkable))
+                {
+                    smoothed.Add(path[i - 1]);
+                    lastValid = i - 1;
+                }
+            }
+
+            smoothed.Add(path.Last());
+            return smoothed;
+        }
+
+        private static bool IsWalkableBetween(GridPoint a, GridPoint b, bool[,] walkable)
+        {
+            // Алгоритма Брезенхема для проверки прямой видимости
+            int dx = Math.Abs(b.X - a.X);
+            int dy = Math.Abs(b.Y - a.Y);
+            int sx = a.X < b.X ? 1 : -1;
+            int sy = a.Y < b.Y ? 1 : -1;
+            int err = dx - dy;
+
+            while (true)
+            {
+                if (a.X == b.X && a.Y == b.Y) break;
+                if (!walkable[a.X, a.Y]) return false;
+
+                int e2 = 2 * err;
+                if (e2 > -dy)
+                {
+                    err -= dy;
+                    a.X += sx;
+                }
+                if (e2 < dx)
+                {
+                    err += dx;
+                    a.Y += sy;
+                }
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// Находит путь от start до goal по булевой карте проходимости.
         /// </summary>

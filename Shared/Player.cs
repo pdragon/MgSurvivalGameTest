@@ -50,54 +50,50 @@ namespace Shared
         {
             //if (Path.Count > 0)
             //{
-            //    // Целевая клетка — первая в списке
-            //    var gp = Path[0];
+            //    var targetCell = Path[0];
             //    var targetPos = new Vector2(
-            //        gp.X * MapTileSize + MapTileSize / 2,
-            //        gp.Y * MapTileSize + MapTileSize / 2);
+            //        targetCell.X * MapTileSize + MapTileSize / 2,
+            //        targetCell.Y * MapTileSize + MapTileSize / 2
+            //    );
 
-            //    var dir = targetPos - Position;
-            //    if (dir.Length() < 1f)
+            //    // Вычисляем направление и расстояние
+            //    Vector2 dir = targetPos - Position;
+            //    float distance = dir.Length();
+
+            //    // Если персонаж близко к цели, переходим к следующей точке
+            //    if (distance <= speed * deltaTime)
             //    {
-            //        // Достигли — удаляем клетку
+            //        Position = targetPos;
             //        Path.RemoveAt(0);
             //    }
             //    else
             //    {
+            //        // Нормализуем направление и двигаемся
             //        dir = Vector2.Normalize(dir);
             //        Position += dir * speed * deltaTime;
             //    }
             //}
-            //else
-            //{
-            //    // Ваша прежняя логика перемещения по клику
-            //}
-            if (Path.Count > 0)
+            if (Path.Count == 0) return;
+
+            // Целевая позиция — последняя точка пути
+            var targetCell = Path.Last();
+            var targetPos = new Vector2(
+                targetCell.X * MapTileSize + MapTileSize / 2,
+                targetCell.Y * MapTileSize + MapTileSize / 2
+            );
+
+            Vector2 dir = targetPos - Position;
+            float distance = dir.Length();
+
+            if (distance > 1f)
             {
-                var targetCell = Path[0];
-                var targetPos = new Vector2(
-                    targetCell.X * MapTileSize + MapTileSize / 2,
-                    targetCell.Y * MapTileSize + MapTileSize / 2
-                );
-
-                // Вычисляем направление и расстояние
-                Vector2 dir = targetPos - Position;
-                float distance = dir.Length();
-
-                // Если персонаж близко к цели, переходим к следующей точке
-                if (distance <= speed * deltaTime)
-                {
-                    Position = targetPos;
-                    Path.RemoveAt(0);
-                }
-                else
-                {
-                    // Нормализуем направление и двигаемся
-                    dir = Vector2.Normalize(dir);
-                    Position += dir * speed * deltaTime;
-                }
+                dir = Vector2.Normalize(dir);
+                Position += dir * speed * deltaTime;
             }
-
+            else
+            {
+                Path.Clear(); // Достигли цели
+            }
         }
     }
 }

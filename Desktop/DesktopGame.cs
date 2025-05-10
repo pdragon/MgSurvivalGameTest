@@ -321,7 +321,9 @@ namespace Desktop
 
                 // 3) Строим карту проходимости (bool[,]) и ищем путь:
                 bool[,] walkable = Core.BuildWalkableMap(); // ваш метод, учитывающий препятствия
-                var path = Shared.Pathfinding.AStar.FindPath(walkable, start, goal);
+                //var path = Shared.Pathfinding.AStar.FindPath(walkable, start, goal);
+                var rawPath = AStar.FindPath(walkable, start, goal);
+                var path = AStar.SmoothPath(rawPath, walkable);
 
                 // 4) Передаём маршрут игроку:
                 Core.Player.SetPath(path);
