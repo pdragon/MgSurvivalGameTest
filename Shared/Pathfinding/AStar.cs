@@ -7,8 +7,10 @@ namespace Shared.Pathfinding
     {
         // 4-направленная сетка (можно расширить до 8-направленной, добавив диагонали)
         private static readonly GridPoint[] Directions = {
-            new GridPoint(1,0), new GridPoint(-1,0),
-            new GridPoint(0,1), new GridPoint(0,-1)
+            new GridPoint(1, 0), new GridPoint(-1, 0),
+            new GridPoint(0, 1), new GridPoint(0, -1),
+            new GridPoint(1, 1), new GridPoint(1, -1),
+            new GridPoint(-1, 1), new GridPoint(-1, -1)
         };
 
         /// <summary>
@@ -53,9 +55,7 @@ namespace Shared.Pathfinding
 
                 foreach (var dir in Directions)
                 {
-                    var neighborPos = new GridPoint(
-                        current.Position.X + dir.X,
-                        current.Position.Y + dir.Y);
+                    var neighborPos = new GridPoint(current.Position.X + dir.X, current.Position.Y + dir.Y);
 
                     // Проверка границ
                     if (neighborPos.X < 0 || neighborPos.X >= width ||
@@ -66,11 +66,24 @@ namespace Shared.Pathfinding
                     if (!walkable[neighborPos.X, neighborPos.Y])
                         continue;
 
+                    // Диагональное движение возможно только если соседние клетки свободны
+                    if (Math.Abs(dir.X) + Math.Abs(dir.Y) == 2)
+                    {
+                        // Проверяем, не блокированы ли соседние клетки
+                        bool isBlockedX = !walkable[current.Position.X + dir.X, current.Position.Y];
+                        bool isBlockedY = !walkable[current.Position.X, current.Position.Y + dir.Y];
+                        if (isBlockedX || isBlockedY) continue;
+                    }
+
                     // Уже обработан
                     if (closedSet.Contains((neighborPos.X, neighborPos.Y)))
                         continue;
 
-                    float tentativeG = current.G + 1; // стоимость движения — 1 за шаг
+                    //float tentativeG = current.G + 1; 
+                    // стоимость движения — 1 за шаг
+                    float moveCost = (Math.Abs(dir.X) + Math.Abs(dir.Y) == 2) ? 1.414f : 1f;
+                    float tentativeG = current.G + moveCost;
+
                     var neighbor = GetNode(neighborPos);
 
                     if (tentativeG < neighbor.G)
@@ -88,8 +101,16 @@ namespace Shared.Pathfinding
         }
 
         // Манхэттенская эвристика для 4-направленной сетки
+        //private static float Heuristic(GridPoint a, GridPoint b)
+        //    => Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y);  // :contentReference[oaicite:6]{index=6}
+
+        // Эвклидова эвристика для 8-направленной сетки
         private static float Heuristic(GridPoint a, GridPoint b)
-            => Math.Abs(a.X - b.X) + Math.Abs(a.Y - b.Y);  // :contentReference[oaicite:6]{index=6}
+        {
+            float dx = a.X - b.X;
+            float dy = a.Y - b.Y;
+            return (float)Math.Sqrt(dx * dx + dy * dy);
+        }
 
         // Восстановление пути по ссылкам Parent
         private static List<GridPoint> ReconstructPath(Node? node)

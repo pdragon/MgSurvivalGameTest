@@ -42,70 +42,62 @@ namespace Shared
         /// </summary>
         public void SetPath(List<GridPoint> newPath)
         {
-            Path = newPath ?? new List<GridPoint>();
+            //Path = newPath ?? new List<GridPoint>();
+            Path = newPath?.Count > 0 ? newPath : new List<GridPoint>();
         }
 
         public void Update(float deltaTime, TileMap map)
         {
-            //var dt = (float)deltaTime;
-            //var dir = destination - Position;
-            //if (dir.Length() < 1f) return;
-
-            //dir = Vector2.Normalize(dir);            // статический метод с параметром
-            //Position += dir * speed * deltaTime;
-
-            //// Если есть путь — движемся по нему
-            //if (path.Count > 0)
+            //if (Path.Count > 0)
             //{
-            //    // Целевая клетка
-            //    var targetCell = path[0];
-            //    // Конвертируем в мировые координаты центра клетки
+            //    // Целевая клетка — первая в списке
+            //    var gp = Path[0];
             //    var targetPos = new Vector2(
-            //        targetCell.X * MapTileSize + MapTileSize / 2,
-            //        targetCell.Y * MapTileSize + MapTileSize / 2);
+            //        gp.X * MapTileSize + MapTileSize / 2,
+            //        gp.Y * MapTileSize + MapTileSize / 2);
 
-            //    // Движение к targetPos
-            //    var direction = targetPos - Position;
-            //    if (direction.Length() < 1f)
+            //    var dir = targetPos - Position;
+            //    if (dir.Length() < 1f)
             //    {
-            //        // Достигли центра клетки — убираем её из пути
-            //        path.RemoveAt(0);
+            //        // Достигли — удаляем клетку
+            //        Path.RemoveAt(0);
             //    }
             //    else
             //    {
-            //        direction = Vector2.Normalize(direction);
-            //        Position += direction * speed * deltaTime;
+            //        dir = Vector2.Normalize(dir);
+            //        Position += dir * speed * deltaTime;
             //    }
             //}
             //else
             //{
-            //    // Ваша прежняя логика клика: если path пуст — ставьте destination
+            //    // Ваша прежняя логика перемещения по клику
             //}
-
             if (Path.Count > 0)
             {
-                // Целевая клетка — первая в списке
-                var gp = Path[0];
+                var targetCell = Path[0];
                 var targetPos = new Vector2(
-                    gp.X * MapTileSize + MapTileSize / 2,
-                    gp.Y * MapTileSize + MapTileSize / 2);
+                    targetCell.X * MapTileSize + MapTileSize / 2,
+                    targetCell.Y * MapTileSize + MapTileSize / 2
+                );
 
-                var dir = targetPos - Position;
-                if (dir.Length() < 1f)
+                // Вычисляем направление и расстояние
+                Vector2 dir = targetPos - Position;
+                float distance = dir.Length();
+
+                // Если персонаж близко к цели, переходим к следующей точке
+                if (distance <= speed * deltaTime)
                 {
-                    // Достигли — удаляем клетку
+                    Position = targetPos;
                     Path.RemoveAt(0);
                 }
                 else
                 {
+                    // Нормализуем направление и двигаемся
                     dir = Vector2.Normalize(dir);
                     Position += dir * speed * deltaTime;
                 }
             }
-            else
-            {
-                // Ваша прежняя логика перемещения по клику
-            }
+
         }
     }
 }

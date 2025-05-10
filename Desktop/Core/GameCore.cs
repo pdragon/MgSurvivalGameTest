@@ -80,13 +80,12 @@ namespace Desktop
                 for (int y = 0; y < h; y++)
                     walkable[x, y] = true;
 
-            // Для каждого объекта, берём его Bounds и «закрашиваем» соответствующие клетки
+            // Для каждого объекта, блокируем клетки
             foreach (var obj in Interactables)
             {
-                var rect = obj.Bounds; // Microsoft.Xna.Framework.Rectangle
+                var rect = obj.Bounds;
                 int minX = rect.X / ts, minY = rect.Y / ts;
-                int maxX = (rect.Right - 1) / ts;
-                int maxY = (rect.Bottom - 1) / ts;
+                int maxX = (rect.Right - 1) / ts, maxY = (rect.Bottom - 1) / ts;
 
                 for (int gx = minX; gx <= maxX; gx++)
                     for (int gy = minY; gy <= maxY; gy++)
