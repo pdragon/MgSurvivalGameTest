@@ -28,6 +28,7 @@ namespace Desktop.Classes
                 [JsonProperty("atlas")] public string Atlas { get; set; }
                 //[JsonProperty("texture_position")] public Rectangle TexturePosition { get; set; }
                 [JsonProperty("texture_position")] private int[] TexturePositionArray { get; set; }
+                [JsonProperty("walkable")] public bool Walkable { get; set; }
                 [JsonIgnore]
                 public Rectangle TexturePosition =>
                   new Rectangle(
@@ -38,6 +39,7 @@ namespace Desktop.Classes
                   );
                 public Texture2D Texture { get; set; }
             }
+            [JsonProperty("terrainTiles")] public ushort[] TerrainTiles { get; set; }
         }
 
         public class Atlases
@@ -70,4 +72,6 @@ namespace Desktop.Classes
 
         [JsonProperty("assets")] public MainAssets Assets { get; set; }
     }
+
+    
 }

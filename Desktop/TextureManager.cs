@@ -7,7 +7,6 @@ using System.Reflection.Metadata;
 
 namespace Desktop
 {
-
     public class TextureManager
     {
         private readonly ContentManager Content;

@@ -24,7 +24,7 @@ namespace Desktop
         private KeyboardState PrevKeyboard;
         private MouseState PrevMouse;
 
-        private readonly GameCore Core = new GameCore();
+        private readonly GameCore Core;
         private Camera Camera;
 
         private bool IsMiddleButtonPressed = false;
@@ -54,8 +54,15 @@ namespace Desktop
         private Texture2D actionCursorTexture;
         private ConfigFile.TerrainClass Terrain;
 
+        // Для отображения линий перехода
+        private List<Vector2> currentPath = new List<Vector2>();
+        private Texture2D pathPixel;
+
         public DesktopGame()
         {
+            var loader = new AssetsDataLoader();
+            Config = loader.GetFromJson();
+            Core = new GameCore(Config.Assets.Terrain.TerrainTiles);
             gfx = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
             //IsMouseVisible = true;
@@ -65,8 +72,8 @@ namespace Desktop
         protected override void Initialize()
         {
             InventoryPanel = new InventoryPanel();
-            int mapPixelWidth = Core.Map.Width * Core.Map.TileSize;
-            int mapPixelHeight = Core.Map.Height * Core.Map.TileSize;
+            int mapPixelWidth = GameCore.Map.Width * GameCore.Map.TileSize;
+            int mapPixelHeight = GameCore.Map.Height * GameCore.Map.TileSize;
             Camera = new Camera(GraphicsDevice, mapPixelWidth, mapPixelHeight);
             base.Initialize();
         }
@@ -99,13 +106,15 @@ namespace Desktop
 
         protected override void LoadContent()
         {
-            var loader = new AssetsDataLoader();
-            Config = loader.GetFromJson();
-            //loader.LoadAssets(Content);
-            //AssetsDataLoader.Config
+            // Создаем текстуру для рисования линий
+            pathPixel = new Texture2D(GraphicsDevice, 1, 1);
+            pathPixel.SetData(new[] { Color.White });
+
             sb = new SpriteBatch(GraphicsDevice);
             TileSet = Content.Load<Texture2D>("terrain/output_tileset");
             TileManager.LoadTileset(new Vector2i(TileSet.Width, TileSet.Height));
+
+            //TileManager.LoadTileset(new Vector2i(20, 10));
             playerTex = Content.Load<Texture2D>("player");
 
             TextureManager = new TextureManager(Content);
@@ -135,6 +144,33 @@ namespace Desktop
             actionCursorTexture = Content.Load<Texture2D>("UI/cursor_action");
         }
 
+        private void DrawPath()
+        {
+            if (currentPath.Count < 2) return;
+
+            for (int i = 0; i < currentPath.Count - 1; i++)
+            {
+                DrawLine(sb, currentPath[i], currentPath[i + 1], Color.Red, 2);
+            }
+        }
+
+        private void DrawLine(SpriteBatch sb, Vector2 start, Vector2 end, Color color, int thickness)
+        {
+            Vector2 edge = end - start;
+            float angle = (float)Math.Atan2(edge.Y, edge.X);
+            float length = edge.Length();
+
+            sb.Draw(pathPixel,
+                start,
+                null,
+                color,
+                angle,
+                new Vector2(0, 0.5f),
+                new Vector2(length, thickness),
+                SpriteEffects.None,
+                0);
+        }
+
         protected override void Update(GameTime gameTime)
         {
             Input(gameTime);
@@ -145,6 +181,7 @@ namespace Desktop
 
         protected override void Draw(GameTime gameTime)
         {
+            
             GraphicsDevice.Clear(Color.CornflowerBlue);
             // ————— Мир + персонаж (с учётом смещения камеры) —————
             sb.Begin(transformMatrix: Camera.ViewMatrix);
@@ -166,19 +203,25 @@ namespace Desktop
                 Color.White
             );
             sb.End();
+
+            sb.Begin();
+                DrawPath();
+            sb.End();
             base.Draw(gameTime);
         }
 
         private void DrawMap()
         {
             // рендерим тайлы
-            for (int x = 0; x < TileManager.TileMap!.Width; x++)
-                for (int y = 0; y < TileManager.TileMap.Height; y++)
+            //for (int x = 0; x < TileManager.TileMap!.Width; x++)
+            for (int x = 0; x < GameCore.Map.Width; x++)
+                //for (int y = 0; y < TileManager.TileMap.Height; y++)
+                for (int y = 0; y < GameCore.Map.Height; y++)
                 {
                     // Позиция на экране
-                    Rectangle destRect = TileManager.TileMap.GetTileBounds(x, y).ToMonoGame();
+                    Rectangle destRect = GameCore.Map.GetTileBounds(x, y).ToMonoGame();
                     string textureId = "-1";
-                    int tileType = TileManager.TileMap.GetTileType(x, y);
+                    int tileType = GameCore.Map.GetTileType(x, y);
                     if (Config.Assets.Terrain.Tiles.ContainsKey(tileType.ToString()))
                     {
                         textureId = Config.Assets.Terrain.Tiles[tileType.ToString()].TileId;
@@ -306,27 +349,38 @@ namespace Desktop
                 var selectedItem = HotbarPanel.GetSelectedItem();
                 var mouseWorldPos = GetMouseWorldPosition(); // Метод для преобразования экранных координат в игровые
 
-                // PAth
-                // 1) Получаем клик в мировых координатах и конвертим в сетку:
+                // Path
+                // 1) Получаем клик в мировых координатах и преобразуем в сетку:
                 var mouseWorld = GetMouseWorldPosition(); // Vector2 из MonoGame
                 var clickCell = new GridPoint(
-                    (int)(mouseWorld.X / Core.Map.TileSize),
-                    (int)(mouseWorld.Y / Core.Map.TileSize));
+                    (int)(mouseWorld.X / GameCore.Map.TileSize),
+                    (int)(mouseWorld.Y / GameCore.Map.TileSize));
 
                 // 2) Стартовый и целевой узлы:
                 var start = new GridPoint(
-                    (int)(Core.Player.Position.X / Core.Map.TileSize),
-                    (int)(Core.Player.Position.Y / Core.Map.TileSize));
+                    (int)(Core.Player.Position.X / GameCore.Map.TileSize),
+                    (int)(Core.Player.Position.Y / GameCore.Map.TileSize));
                 var goal = clickCell;
 
                 // 3) Строим карту проходимости (bool[,]) и ищем путь:
                 bool[,] walkable = Core.BuildWalkableMap(); // ваш метод, учитывающий препятствия
-                //var path = Shared.Pathfinding.AStar.FindPath(walkable, start, goal);
                 var rawPath = AStar.FindPath(walkable, start, goal);
                 var path = AStar.SmoothPath(rawPath, walkable);
 
                 // 4) Передаём маршрут игроку:
                 Core.Player.SetPath(path);
+                // Рисуем путь
+                currentPath.Clear();
+                if (path.Count > 0)
+                {
+                    foreach (var point in path)
+                    {
+                        currentPath.Add(new Vector2(
+                            point.X * GameCore.Map.TileSize + GameCore.Map.TileSize / 2,
+                            point.Y * GameCore.Map.TileSize + GameCore.Map.TileSize / 2
+                        ));
+                    }
+                }
                 // ----------Path
 
 

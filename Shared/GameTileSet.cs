@@ -3,7 +3,7 @@ using Shared.Utils;
 using System.Drawing;
 using System.Numerics;
 
-namespace Desktop
+namespace Shared
 {
     public class GameTileSet
     {
@@ -14,7 +14,7 @@ namespace Desktop
         
         public void LoadTileset(Vector2i textureSize)
         {
-            TileMap = new TileMap(textureSize.X / tileWidth, textureSize.Y / tileHeight, tileWidth);
+            //TileMap = new TileMap(TileMap.TilesTypeMap, textureSize.X / tileWidth, textureSize.Y / tileHeight, tileWidth);
             int tilesPerRow = textureSize.X / tileWidth;
             int tilesPerColumn = textureSize.Y / tileHeight;
             TileRegions = new Rectangle[tilesPerRow * tilesPerColumn];

@@ -6,8 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="GameCore.cs.bak" />
-  </ItemGroup>
-
 </Project>

@@ -46,37 +46,62 @@ namespace Shared
             Path = newPath?.Count > 0 ? newPath : new List<GridPoint>();
         }
 
-        public void Update(float deltaTime, TileMap map)
+        //public void Update(float deltaTime, TileMap map)
+        //{
+        //    //if (Path.Count > 0)
+        //    //{
+        //    //    var targetCell = Path[0];
+        //    //    var targetPos = new Vector2(
+        //    //        targetCell.X * MapTileSize + MapTileSize / 2,
+        //    //        targetCell.Y * MapTileSize + MapTileSize / 2
+        //    //    );
+
+        //    //    // Вычисляем направление и расстояние
+        //    //    Vector2 dir = targetPos - Position;
+        //    //    float distance = dir.Length();
+
+        //    //    // Если персонаж близко к цели, переходим к следующей точке
+        //    //    if (distance <= speed * deltaTime)
+        //    //    {
+        //    //        Position = targetPos;
+        //    //        Path.RemoveAt(0);
+        //    //    }
+        //    //    else
+        //    //    {
+        //    //        // Нормализуем направление и двигаемся
+        //    //        dir = Vector2.Normalize(dir);
+        //    //        Position += dir * speed * deltaTime;
+        //    //    }
+        //    //}
+        //    if (Path.Count == 0) return;
+
+        //    // Целевая позиция — последняя точка пути
+        //    var targetCell = Path.Last();
+        //    var targetPos = new Vector2(
+        //        targetCell.X * MapTileSize + MapTileSize / 2,
+        //        targetCell.Y * MapTileSize + MapTileSize / 2
+        //    );
+
+        //    Vector2 dir = targetPos - Position;
+        //    float distance = dir.Length();
+
+        //    if (distance > 1f)
+        //    {
+        //        dir = Vector2.Normalize(dir);
+        //        Position += dir * speed * deltaTime;
+        //    }
+        //    else
+        //    {
+        //        Path.Clear(); // Достигли цели
+        //    }
+        //}
+
+        public void Update(float deltaTime)
         {
-            //if (Path.Count > 0)
-            //{
-            //    var targetCell = Path[0];
-            //    var targetPos = new Vector2(
-            //        targetCell.X * MapTileSize + MapTileSize / 2,
-            //        targetCell.Y * MapTileSize + MapTileSize / 2
-            //    );
-
-            //    // Вычисляем направление и расстояние
-            //    Vector2 dir = targetPos - Position;
-            //    float distance = dir.Length();
-
-            //    // Если персонаж близко к цели, переходим к следующей точке
-            //    if (distance <= speed * deltaTime)
-            //    {
-            //        Position = targetPos;
-            //        Path.RemoveAt(0);
-            //    }
-            //    else
-            //    {
-            //        // Нормализуем направление и двигаемся
-            //        dir = Vector2.Normalize(dir);
-            //        Position += dir * speed * deltaTime;
-            //    }
-            //}
             if (Path.Count == 0) return;
 
-            // Целевая позиция — последняя точка пути
-            var targetCell = Path.Last();
+            // Целевая позиция - следующая точка в пути
+            var targetCell = Path[0];
             var targetPos = new Vector2(
                 targetCell.X * MapTileSize + MapTileSize / 2,
                 targetCell.Y * MapTileSize + MapTileSize / 2
@@ -85,14 +110,15 @@ namespace Shared
             Vector2 dir = targetPos - Position;
             float distance = dir.Length();
 
-            if (distance > 1f)
+            if (distance <= speed * deltaTime)
             {
-                dir = Vector2.Normalize(dir);
-                Position += dir * speed * deltaTime;
+                Position = targetPos;
+                Path.RemoveAt(0);
             }
             else
             {
-                Path.Clear(); // Достигли цели
+                dir = Vector2.Normalize(dir);
+                Position += dir * speed * deltaTime;
             }
         }
     }

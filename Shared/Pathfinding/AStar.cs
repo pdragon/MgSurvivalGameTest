@@ -33,35 +33,66 @@ namespace Shared.Pathfinding
             return smoothed;
         }
 
+        // Заменяем IsWalkableBetween на корректную реализацию
         private static bool IsWalkableBetween(GridPoint a, GridPoint b, bool[,] walkable)
         {
-            // Алгоритма Брезенхема для проверки прямой видимости
             int dx = Math.Abs(b.X - a.X);
             int dy = Math.Abs(b.Y - a.Y);
             int sx = a.X < b.X ? 1 : -1;
             int sy = a.Y < b.Y ? 1 : -1;
             int err = dx - dy;
+            int currentX = a.X;
+            int currentY = a.Y;
 
             while (true)
             {
-                if (a.X == b.X && a.Y == b.Y) break;
-                if (!walkable[a.X, a.Y]) return false;
+                if (currentX == b.X && currentY == b.Y) break;
+                if (!walkable[currentX, currentY]) return false;
 
                 int e2 = 2 * err;
                 if (e2 > -dy)
                 {
                     err -= dy;
-                    a.X += sx;
+                    currentX += sx;
                 }
                 if (e2 < dx)
                 {
                     err += dx;
-                    a.Y += sy;
+                    currentY += sy;
                 }
             }
-
             return true;
         }
+
+        //private static bool IsWalkableBetween(GridPoint a, GridPoint b, bool[,] walkable)
+        //{
+        //    // Алгоритм Брезенхема для проверки прямой видимости
+        //    int dx = Math.Abs(b.X - a.X);
+        //    int dy = Math.Abs(b.Y - a.Y);
+        //    int sx = a.X < b.X ? 1 : -1;
+        //    int sy = a.Y < b.Y ? 1 : -1;
+        //    int err = dx - dy;
+
+        //    while (true)
+        //    {
+        //        if (a.X == b.X && a.Y == b.Y) break;
+        //        if (!walkable[a.X, a.Y]) return false;
+
+        //        int e2 = 2 * err;
+        //        if (e2 > -dy)
+        //        {
+        //            err -= dy;
+        //            a.X += sx;
+        //        }
+        //        if (e2 < dx)
+        //        {
+        //            err += dx;
+        //            a.Y += sy;
+        //        }
+        //    }
+
+        //    return true;
+        //}
 
         /// <summary>
         /// Находит путь от start до goal по булевой карте проходимости.
