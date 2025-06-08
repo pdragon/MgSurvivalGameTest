@@ -114,7 +114,6 @@ namespace Desktop
             TileSet = Content.Load<Texture2D>("terrain/output_tileset");
             TileManager.LoadTileset(new Vector2i(TileSet.Width, TileSet.Height));
 
-            //TileManager.LoadTileset(new Vector2i(20, 10));
             playerTex = Content.Load<Texture2D>("player");
 
             TextureManager = new TextureManager(Content);

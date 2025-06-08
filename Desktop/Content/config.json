@@ -6,6 +6,24 @@
       "path_SelectionFrame": "UI/selection_frame",
       "path_Panel": "UI/panel"
     },
+    "units": [
+      {
+        "id": "player",
+        "sprites": {
+          "atlas": "player_atlas",
+          "idle": {
+            "forward": [
+              { "position": [ 0, 0, 20, 20 ] },
+              { "position": [ 20, 0, 20, 20 ] }
+            ],
+            "backward": [
+              { "position": [ 0, 0, 20, 20 ] },
+              { "position": [ 20, 0, 20, 20 ] }
+            ]
+          }
+        }
+      }
+    ],
     "items": {
       "sword": {
         "id": 1,
@@ -93,6 +111,10 @@
       "main_atlas": {
         "file": "terrain/output_tileset",
         "id": "main_atlas"
+      },
+      "player_atlas": {
+        "file": "player",
+        "id": "player_atlas"
       }
     }
   }

@@ -11,11 +11,16 @@ namespace Desktop
     {
         private readonly ContentManager Content;
         private readonly Dictionary<string, Texture2D> Textures = new Dictionary<string, Texture2D>();
+        private readonly Dictionary<short, Dictionary<string, Texture2D>> UnitTextures = new();
+        //public UnitSprites 
         //private readonly Dictionary<string, AtlasDefinition> _atlases = new Dictionary<string, AtlasDefinition>();
 
         public TextureManager(ContentManager content)
         {
             Content = content;
+            //TODO: Создать отдельный метод для Unit, который будет содержать уже в себе все анимации свои и грузить в этом методе в него UnitTextures
+            UnitTextures[0] = new();
+            UnitTextures[1] = new();
         }
 
         /// <summary>

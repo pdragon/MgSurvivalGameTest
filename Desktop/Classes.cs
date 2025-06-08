@@ -62,12 +62,46 @@ namespace Desktop.Classes
             [JsonProperty("path_SelectionFrame")] public string SelectionFrame { get; set; }
         }
 
+        public class UnitSprites
+        {
+            [JsonProperty("atlas")] public string Atlas { get; set; }
+            [JsonProperty("idle")] public SpriteDirection Idle { get; set; }
+
+            public class SpriteDirection
+            {
+                [JsonProperty("forward")]  public SpritePosition[] Forward  { get; set; }
+                [JsonProperty("backward")] public SpritePosition[] Backward { get; set; }
+            }
+        }
+
+        public class SpritePosition
+        {
+            [JsonProperty("position")] private short[] TexturePositionArray { get; set; }
+            [JsonIgnore]
+            public Rectangle TexturePosition =>
+              new Rectangle(
+                  TexturePositionArray[0],
+                  TexturePositionArray[1],
+                  TexturePositionArray[2],
+                  TexturePositionArray[3]
+              );
+        }
+
+        public class Units
+        {
+            [JsonProperty("id")] public string Id { get; set; }
+            [JsonProperty("sprites")] public UnitSprites Sprites { get; set; }
+            
+
+        }
+
         public class MainAssets
         {
             [JsonProperty("ui")] public UI Ui { get; set; }
             [JsonProperty("items")] public Dictionary<string, Item> Items { get; set; }
             [JsonProperty("terrain")] public TerrainClass Terrain { get; set; }
             [JsonProperty("atlases")] public Dictionary<string, Atlas> Atlases { get; set; }
+            [JsonProperty("units")] public Units[] Units { get; set; }
         }
 
         [JsonProperty("assets")] public MainAssets Assets { get; set; }
